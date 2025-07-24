@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Management;
+// using System.Runtime.InteropServices;
 using System.Security.AccessControl;
 using FlaUI.Core.AutomationElements;
 using FlaUI.Core.Definitions;
@@ -467,10 +468,10 @@ Login(string username, string password) {
             FillTextBox(FindKey(all, "Login_SignIn_WithAccountName", true), username);
             FillTextBox(FindKey(all, "Login_Password", true), password);
             ClickButton(FindKey(all, "Login_SignIn")); 
-        } else if (all.Any(x => x.Contains("LIBRARY")) || all.Any(x => x.Contains("STORE"))){
+        } else if (all.Any(x => x.Contains("LIBRARY")) || all.Any(x => x.Contains("STORE")) || all.Any(x => x.Contains("Menu"))){
 
 
-            InvokeButton("LIBRARY"); //todo: find the new way to invoke this button, such as script import
+            InvokeButton("LIBRARY");
             DeleteSteamLoginUsers();
             Console.WriteLine("Login success");
             return true;
@@ -545,10 +546,48 @@ void PrintAllElements()
 }
 
 
+// bool IsSteamHiddenToTray()
+// {
+//     foreach (var proc in Process.GetProcessesByName("steam"))
+//     {
+//         foreach (var child in GetChildProcesses(proc))
+//         {
+//             foreach (var hndl in EnumerateProcessWindowHandles(child))
+//             {
+//                 if (hndl == IntPtr.Zero)
+//                     continue;
+
+//                 if (Win32Helper.IsWindowVisible(hndl))
+//                 {
+//                     try
+//                     {
+//                         var window = new UIA3Automation().FromHandle(hndl);
+//                         var title = window.Name;
+//                         if (!string.IsNullOrWhiteSpace(title) &&
+//                             title != "Default IME" &&
+//                             title != "MSCTFIME UI" &&
+//                             title != "Friends List" &&
+//                             title != "Steam Settings")
+//                         {
+//                             Console.WriteLine($"Steam main window is visible: {title}");
+//                             return false; // Cửa sổ chính đang hiển thị
+//                         }
+//                     }
+//                     catch { }
+//                 }
+//             }
+//         }
+//     }
+//     Console.WriteLine("Steam is hidden to tray or not running.");
+//     return true; // Không thấy cửa sổ chính => bị ẩn
+// }
+
+
+
 if (args.Length == 3 && args[0] == "login"){
     if (Login(args[1],args[2]))
         Environment.Exit(0);
-    else 
+    else
         Environment.Exit(-1);
 } else if (args.Length == 1 && args[0] == "logout")
     Close();
@@ -556,3 +595,28 @@ else if (args.Length == 1 && args[0] == "path")
     Console.WriteLine($"{path}");
 else if (args.Length == 1 && args[0] == "print")
     PrintAllElements();
+// else if (args.Length == 1 && args[0] == "status")
+//     try
+//     {
+//         if (!IsSteamHiddenToTray())
+//             Environment.Exit(0);
+//         else
+//             Environment.Exit(-1);
+//     }
+//     catch (Exception ex)
+//     {
+//         Console.Error.WriteLine("status check exception: " + ex.Message);
+//         Environment.Exit(100); // hoặc 1 để báo lỗi
+//     }
+
+// internal static class Win32Helper
+// {
+//     [DllImport("user32.dll")]
+//     [return: MarshalAs(UnmanagedType.Bool)]
+//     public static extern bool IsWindowVisible(IntPtr hWnd);
+
+//     [DllImport("user32.dll")]
+//     public static extern bool EnumThreadWindows(int dwThreadId, EnumThreadDelegate lpfn, IntPtr lParam);
+
+//     public delegate bool EnumThreadDelegate(IntPtr hWnd, IntPtr lParam);
+// }
